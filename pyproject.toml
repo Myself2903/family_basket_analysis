@@ -1,0 +1,10 @@
+[project]
+name = "family-basket-analysis"
+version = "0.1.0"
+description = "A data analisis for the dataset stored in https://www.datos.gov.co/Agricultura-y-Desarrollo-Rural/Historico-de-Precios-Productos-de-la-Canasta-Famil/gdqq-rry2/about_data"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "dateparser>=1.4.0",
+    "pandas>=3.0.3",
+]
