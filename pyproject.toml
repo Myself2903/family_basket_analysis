@@ -5,6 +5,5 @@ description = "A data analisis for the dataset stored in https://www.datos.gov.c
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "dateparser>=1.4.0",
     "pandas>=3.0.3",
 ]
