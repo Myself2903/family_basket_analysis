@@ -26,10 +26,20 @@ def transform_str_date_to_date(data:pd.DataFrame) -> pd.DataFrame:
    
     return df
 
-def run_pipeline(data: pd.DataFrame) -> pd.DataFrame:
-    """Aplica todas las transformaciones en cadena."""
+def remove_city_from_market(data: pd.DataFrame) -> pd.DataFrame:
+    df = data.copy()
+    df['Mercados'] = (
+        df['Mercados']
+        .str.split(',').str[1]
+        .str.strip()
+    )
+
+    return df
+
+def clean_data(data: pd.DataFrame) -> pd.DataFrame:
     return (
         data
         .pipe(transform_price_to_float)
         .pipe(transform_str_date_to_date)
+        .pipe(remove_city_from_market)
     )
