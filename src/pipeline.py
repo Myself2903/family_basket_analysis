@@ -36,10 +36,25 @@ def remove_city_from_market(data: pd.DataFrame) -> pd.DataFrame:
 
     return df
 
+def add_price_variation_columns(data: pd.DataFrame) -> pd.DataFrame:
+    df = data.copy()
+    minimum_price_column, maximum_price_column, average_price_column = NUMERIC_COLUMNS
+
+    df["price_variation_range"] = (
+        df[maximum_price_column] - df[minimum_price_column]
+    )
+
+    df["price_variation_percentage"] = (
+        df["price_variation_range"] / df[average_price_column]
+    ) * 100
+
+    return df
+
 def clean_data(data: pd.DataFrame) -> pd.DataFrame:
     return (
         data
         .pipe(transform_price_to_float)
         .pipe(transform_str_date_to_date)
         .pipe(remove_city_from_market)
+        .pipe(add_price_variation_columns)
     )
