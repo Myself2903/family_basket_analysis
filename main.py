@@ -1,7 +1,12 @@
 from src.config import FILE_PATH
 from src.pipeline import clean_data
 from src.utils import load_csv, show_data_structure
-from src.visualizations import build_price_index, plot_price_index
+from src.visualizations import (
+    build_price_index,
+    plot_price_index,
+    build_city_price_index,
+    plot_city_price_index,
+)
 
 def main() -> None:
 
@@ -21,6 +26,10 @@ def main() -> None:
     index_series, base_period = build_price_index(data_cleaned)
     output_path = plot_price_index(index_series, base_period)
     print(f"Gráfico A (evolución temporal) guardado en: {output_path}")
+
+    city_index, n_common = build_city_price_index(data_cleaned)
+    city_output_path = plot_city_price_index(city_index, n_common)
+    print(f"Gráfico B (comparación entre ciudades) guardado en: {city_output_path}")
 
 if __name__ == '__main__':
     main()

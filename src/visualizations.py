@@ -91,3 +91,90 @@ def plot_price_index(
     plt.close(fig)
 
     return output_path
+
+
+def build_city_price_index(
+    data: pd.DataFrame,
+    city_column: str = "Ciudad",
+    price_column: str = "Precio_medio",
+    product_column: str = "Productos",
+) -> tuple[pd.Series, int]:
+    """Builds a price-level index per city over a comparable basket.
+
+    Only products present in every city are kept, so the comparison is not
+    biased by each city sampling a different product mix. Each product is
+    normalized against its cross-city mean price; the median of those
+    relatives per city is a robust price-level index where 100 = average.
+    """
+    df = data.copy()
+
+    n_cities = df[city_column].nunique()
+    products_per_city = df.groupby(product_column)[city_column].nunique()
+    common_products = products_per_city[products_per_city == n_cities].index
+
+    comparable = df[df[product_column].isin(common_products)]
+    by_product_city = (
+        comparable.groupby([product_column, city_column])[price_column]
+        .mean()
+        .reset_index()
+    )
+    product_mean = by_product_city.groupby(product_column)[price_column].transform("mean")
+    by_product_city["price_relative"] = (
+        by_product_city[price_column] / product_mean * 100
+    )
+
+    index_series = (
+        by_product_city.groupby(city_column)["price_relative"]
+        .median()
+        .sort_values()
+        .rename("indice")
+    )
+
+    return index_series, len(common_products)
+
+
+def plot_city_price_index(
+    index_series: pd.Series,
+    n_products: int,
+    output_dir: Path = FIGURES_DIR,
+) -> Path:
+    """Plots the per-city price-level index as a horizontal bar chart."""
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    sns.set_theme(style="whitegrid")
+    fig, ax = plt.subplots(figsize=(10, 6))
+
+    # red = above average (more expensive), blue = below average (cheaper)
+    colors = ["#c0392b" if value >= 100 else "#1f4e79" for value in index_series.values]
+    bars = ax.barh(index_series.index, index_series.values, color=colors)
+    ax.axvline(100, color="grey", linestyle="--", linewidth=1.2)
+
+    for bar, value in zip(bars, index_series.values):
+        ax.annotate(
+            f"{value:.1f}",
+            xy=(value, bar.get_y() + bar.get_height() / 2),
+            xytext=(5, 0),
+            textcoords="offset points",
+            va="center",
+            fontweight="bold",
+        )
+
+    # zoom around 100 so the differences between cities are readable
+    low = min(index_series.min(), 100) - 2
+    high = max(index_series.max(), 100) + 2
+    ax.set_xlim(low, high)
+
+    ax.set_title(
+        "Nivel de precios por ciudad en el Eje Cafetero\n"
+        f"Canasta comparable de {n_products} productos (100 = promedio entre ciudades)",
+        fontsize=13,
+        fontweight="bold",
+    )
+    ax.set_xlabel("Índice de nivel de precios (100 = promedio entre ciudades)")
+    ax.set_ylabel("Ciudad")
+
+    output_path = output_dir / "02_indice_precios_ciudad.png"
+    fig.savefig(output_path, dpi=150, bbox_inches="tight")
+    plt.close(fig)
+
+    return output_path
