@@ -50,6 +50,14 @@ def add_price_variation_columns(data: pd.DataFrame) -> pd.DataFrame:
 
     return df
 
+def add_date_parts(data: pd.DataFrame) -> pd.DataFrame:
+    df = data.copy()
+    df["anio"] = df["Fecha_inicial"].dt.year
+    df["mes"] = df["Fecha_inicial"].dt.month
+    df["anio_mes"] = df["Fecha_inicial"].dt.to_period("M")
+
+    return df
+
 def clean_data(data: pd.DataFrame) -> pd.DataFrame:
     return (
         data
@@ -57,4 +65,5 @@ def clean_data(data: pd.DataFrame) -> pd.DataFrame:
         .pipe(transform_str_date_to_date)
         .pipe(remove_city_from_market)
         .pipe(add_price_variation_columns)
+        .pipe(add_date_parts)
     )
