@@ -178,3 +178,79 @@ def plot_city_price_index(
     plt.close(fig)
 
     return output_path
+
+
+def build_category_volatility(
+    data: pd.DataFrame,
+    category_column: str = "Categoria",
+    volatility_column: str = "price_variation_percentage",
+) -> tuple[list[str], pd.Series]:
+    """Returns categories ordered by median price volatility (descending).
+
+    `price_variation_percentage` is already scale-free (it normalizes the
+    min-max spread by the mean price), so categories can be compared directly
+    without further normalization.
+    """
+    df = data.copy()
+    median_volatility = (
+        df.groupby(category_column)[volatility_column]
+        .median()
+        .sort_values(ascending=False)
+    )
+    order = median_volatility.index.tolist()
+
+    return order, median_volatility
+
+
+def plot_category_volatility(
+    data: pd.DataFrame,
+    order: list[str],
+    category_column: str = "Categoria",
+    volatility_column: str = "price_variation_percentage",
+    output_dir: Path = FIGURES_DIR,
+) -> Path:
+    """Plots price volatility per category as horizontal boxplots.
+
+    Extreme outliers (about 1% of records, up to ~150%) are hidden so the
+    boxes stay readable; this is disclosed in a footnote on the chart.
+    """
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    sns.set_theme(style="whitegrid")
+    fig, ax = plt.subplots(figsize=(11, 6.5))
+
+    sns.boxplot(
+        data=data,
+        x=volatility_column,
+        y=category_column,
+        order=order,
+        color="#1f4e79",
+        showfliers=False,
+        ax=ax,
+    )
+
+    ax.set_title(
+        "Volatilidad de precios por categoría en el Eje Cafetero\n"
+        "Variación porcentual entre precio mínimo y máximo por registro",
+        fontsize=13,
+        fontweight="bold",
+    )
+    ax.set_xlabel("Variación de precio dentro del registro (%)")
+    ax.set_ylabel("Categoría")
+
+    fig.text(
+        0.5,
+        -0.02,
+        "Nota: se omiten los valores atípicos extremos (~1% de los registros, hasta ~150%) "
+        "para mejorar la legibilidad de las cajas.",
+        ha="center",
+        fontsize=8,
+        style="italic",
+        color="grey",
+    )
+
+    output_path = output_dir / "03_volatilidad_categoria.png"
+    fig.savefig(output_path, dpi=150, bbox_inches="tight")
+    plt.close(fig)
+
+    return output_path

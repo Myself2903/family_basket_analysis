@@ -6,6 +6,8 @@ from src.visualizations import (
     plot_price_index,
     build_city_price_index,
     plot_city_price_index,
+    build_category_volatility,
+    plot_category_volatility,
 )
 
 def main() -> None:
@@ -30,6 +32,10 @@ def main() -> None:
     city_index, n_common = build_city_price_index(data_cleaned)
     city_output_path = plot_city_price_index(city_index, n_common)
     print(f"Gráfico B (comparación entre ciudades) guardado en: {city_output_path}")
+
+    category_order, _ = build_category_volatility(data_cleaned)
+    volatility_output_path = plot_category_volatility(data_cleaned, category_order)
+    print(f"Gráfico C (volatilidad por categoría) guardado en: {volatility_output_path}")
 
 if __name__ == '__main__':
     main()
