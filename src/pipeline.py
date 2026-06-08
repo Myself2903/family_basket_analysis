@@ -36,6 +36,18 @@ def remove_city_from_market(data: pd.DataFrame) -> pd.DataFrame:
 
     return df
 
+def clean_data(data: pd.DataFrame) -> pd.DataFrame:
+    return (
+        data
+        .pipe(transform_price_to_float)
+        .pipe(transform_str_date_to_date)
+        .pipe(remove_city_from_market)
+    )
+
+####################################
+######### Extending data ###########
+####################################
+
 def add_price_variation_columns(data: pd.DataFrame) -> pd.DataFrame:
     df = data.copy()
     minimum_price_column, maximum_price_column, average_price_column = NUMERIC_COLUMNS
@@ -58,12 +70,10 @@ def add_date_parts(data: pd.DataFrame) -> pd.DataFrame:
 
     return df
 
-def clean_data(data: pd.DataFrame) -> pd.DataFrame:
+
+def extend_data(data: pd.DataFrame) -> pd.DataFrame:
     return (
         data
-        .pipe(transform_price_to_float)
-        .pipe(transform_str_date_to_date)
-        .pipe(remove_city_from_market)
         .pipe(add_price_variation_columns)
         .pipe(add_date_parts)
-    )
+    ) 
