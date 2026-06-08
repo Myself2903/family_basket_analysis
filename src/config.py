@@ -10,6 +10,13 @@ NUMERIC_COLUMNS = [
     "Precio_medio",
 ]
 
+CATEGORICAL_COLUMNS = [
+        "Productos",
+        "Mercados",
+        "Categoria",
+        "Ciudad"
+]
+
 DATE_COLUMNS = ["Fecha_inicial", "Fecha_final"]
 
 MONTHS_MAPPING = {

@@ -1,42 +1,80 @@
-from src.config import FILE_PATH
-from src.pipeline import clean_data, extend_data
-from src.utils import load_csv, show_data_structure
-from src.visualizations import (
-    build_price_index,
-    plot_price_index,
-    build_city_price_index,
-    plot_city_price_index,
-    build_category_volatility,
-    plot_category_volatility,
+import argparse
+from functools import wraps
+from time import perf_counter
+from typing import Callable, ParamSpec, TypeVar
+from src import (
+    FILE_PATH,
+    cli,
+    pipeline as pipe,
+    visualizations as vis
 )
 
+P = ParamSpec('P')
+R = TypeVar('R')
+
+def timer(fn: Callable[P, R]) -> Callable[P, R]:
+    @wraps(fn)
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
+        start_time = perf_counter()
+        try:
+            return fn(*args, **kwargs)
+        finally:
+            end_time = perf_counter()
+
+            cli.logger.info(f'Execution time: {end_time-start_time:.2f}')
+
+    return wrapper
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+            "-v", "--verbose",
+            action="store_true",
+            help="Enables description output in CLI"
+    )
+
+    return parser.parse_args()
+
+@timer 
 def main() -> None:
+    args = parse_args()
+    cli.setup_logger(args.verbose)
 
-    print(f"================= DESCRIBING DATA =================")
-    print(f'FILE: {FILE_PATH.name}')
+    cli.logger.info(f'Source File: {FILE_PATH.name}')
 
-    data = load_csv(FILE_PATH)
+    data = pipe.load_csv(FILE_PATH)
 
-    # show_data_structure(data)
-    # show_unique_values(data)
+    if args.verbose:
+        cli.print_title(' DATASET RESUME ')
+        cli.show_data_structure(data)
+  
+    data_cleaned = pipe.clean_data(data)
 
-    data_cleaned = clean_data(data)
+    if args.verbose:
+        cli.print_title(' CLEANED DATASET RESUME ')
+        cli.show_data_structure(data_cleaned)
+        cli.describe_categorical_columns(data_cleaned)
+        cli.describe_numerical_columns(data_cleaned)
 
-    show_data_structure(data_cleaned)
+    data_cleaned = pipe.extend_data(data_cleaned)
+    
+    if args.verbose:
+        cli.describe_added_columns(data_cleaned)
 
-    data_cleaned = extend_data(data_cleaned)
+    cli.logger.info('GENERATING DATA PLOTS')
+
+    index_series, base_period = vis.build_price_index(data_cleaned)
+    output_path = vis.plot_price_index(index_series, base_period)
+
+    city_index, n_common = vis.build_city_price_index(data_cleaned)
+    city_output_path = vis.plot_city_price_index(city_index, n_common)
+
+    category_order, _ = vis.build_category_volatility(data_cleaned)
+    volatility_output_path = vis.plot_category_volatility(data_cleaned, category_order)
 
     print(f"================= VISUALIZATIONS =================")
-    index_series, base_period = build_price_index(data_cleaned)
-    output_path = plot_price_index(index_series, base_period)
     print(f"Gráfico A (evolución temporal) guardado en: {output_path}")
-
-    city_index, n_common = build_city_price_index(data_cleaned)
-    city_output_path = plot_city_price_index(city_index, n_common)
     print(f"Gráfico B (comparación entre ciudades) guardado en: {city_output_path}")
-
-    category_order, _ = build_category_volatility(data_cleaned)
-    volatility_output_path = plot_category_volatility(data_cleaned, category_order)
     print(f"Gráfico C (volatilidad por categoría) guardado en: {volatility_output_path}")
 
 if __name__ == '__main__':

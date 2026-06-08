@@ -1,6 +1,16 @@
-from src.config import MONTHS_MAPPING, NUMERIC_COLUMNS, DATE_COLUMNS
 import pandas as pd
+from pathlib import Path
+from src.config import MONTHS_MAPPING, NUMERIC_COLUMNS, DATE_COLUMNS
 
+def load_csv(file_path: Path) -> pd.DataFrame:
+    try:
+        return pd.read_csv(file_path)
+    except FileNotFoundError:
+        raise FileNotFoundError(f"File {file_path} not found")
+
+###################################
+######### Cleaning data ###########
+###################################
 def transform_price_to_float(data: pd.DataFrame) -> pd.DataFrame:
     df = data.copy()
     for column in NUMERIC_COLUMNS:
