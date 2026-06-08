@@ -30,3 +30,40 @@ UV will manage virtual environments for you, so all you need to do is:
 ```
 uv run main.py
 ```
+## Output
+
+The analysis generates three plots under the `figures/` directory:
+
+1. **Price Index Evolution** – Tracks the evolution of a price index over time.
+2. **City Price Comparison** – Compares the price index across cities.
+3. **Category Volatility** – Shows price variability across product categories.
+
+Generated figures are saved as PNG files.
+
+## CLI Options
+
+The application supports the following optional arguments:
+
+| Flag | Description |
+|--------|-------------|
+| `-v`, `--verbose` | Enables verbose mode. Displays detailed information about the dataset, including structure, descriptive statistics, categorical value distributions, and generated feature summaries. |
+
+### Examples
+
+Run the project normally:
+
+```bash
+python main.py
+```
+
+Run the project with detailed output:
+
+```bash
+python main.py --verbose
+```
+
+or
+
+```bash
+python main.py -v
+```
