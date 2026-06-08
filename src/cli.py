@@ -1,6 +1,7 @@
-from src.config import CATEGORICAL_COLUMNS, NUMERIC_COLUMNS
-import pandas as pd
 import logging
+import pandas as pd
+from io import StringIO
+from src.config import CATEGORICAL_COLUMNS, NUMERIC_COLUMNS
 
 logger = logging.getLogger(__name__)
 
@@ -23,9 +24,14 @@ def print_title(title: str) -> None:
 def show_data_structure(data: pd.DataFrame | pd.Series, n_rows:int = 5) -> None:
     print_separator()
     logger.debug(f'data shape: {data.shape}')
-    data.info()
+
+    buffer = StringIO()
+
+    data.info(buf=buffer)
+    logger.debug(buffer.getvalue())
+
     print_separator()
-    print(data.sample(min(n_rows, len(data))))
+    logger.debug(f'\n{data.sample(min(n_rows, len(data)))}')
     print_separator()
 
 def show_unique_values(data: pd.DataFrame, columns: list[str] | None = None) -> None:
@@ -34,11 +40,11 @@ def show_unique_values(data: pd.DataFrame, columns: list[str] | None = None) -> 
     for column in columns:
         print_separator()
         logger.debug(f'======== Describing {column} ========')
-        print(data[column].value_counts())
+        logger.debug(f'\n{data[column].value_counts()}')
 
 def describe_numerical_columns(data: pd.DataFrame) -> None:
     logger.debug('======== Numeric columns resume ========')
-    print(data[NUMERIC_COLUMNS].describe().round(2))
+    logger.debug(f'\n{data[NUMERIC_COLUMNS].describe().round(2)}')
     print_separator()
 
 def describe_categorical_columns(data: pd.DataFrame) -> None:
@@ -46,7 +52,7 @@ def describe_categorical_columns(data: pd.DataFrame) -> None:
     show_unique_values(data, CATEGORICAL_COLUMNS)
     print_separator()
     logger.debug('======== Categorical columns resume ========')
-    print(data[CATEGORICAL_COLUMNS].describe())
+    logger.debug(f"\n{data[CATEGORICAL_COLUMNS].describe()}")
     print_separator()
 
 def describe_added_columns(data: pd.DataFrame) -> None:

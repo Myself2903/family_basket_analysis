@@ -1,8 +1,8 @@
 import argparse
 from src.utils import timer, load_csv
 from src import (
-    FILE_PATH,
     cli,
+    FILE_PATH,
     pipeline as pipe,
     visualizations as vis
 )
@@ -27,22 +27,19 @@ def main() -> None:
 
     data = load_csv(FILE_PATH)
 
-    if args.verbose:
-        cli.print_title(' DATASET RESUME ')
-        cli.show_data_structure(data)
+    cli.print_title(' DATASET RESUME ')
+    cli.show_data_structure(data)
   
     data_cleaned = pipe.clean_data(data)
 
-    if args.verbose:
-        cli.print_title(' CLEANED DATASET RESUME ')
-        cli.show_data_structure(data_cleaned)
-        cli.describe_categorical_columns(data_cleaned)
-        cli.describe_numerical_columns(data_cleaned)
+    cli.print_title(' CLEANED DATASET RESUME ')
+    cli.show_data_structure(data_cleaned)
+    cli.describe_categorical_columns(data_cleaned)
+    cli.describe_numerical_columns(data_cleaned)
 
     data_cleaned = pipe.extend_data(data_cleaned)
     
-    if args.verbose:
-        cli.describe_added_columns(data_cleaned)
+    cli.describe_added_columns(data_cleaned)
 
     index_series, base_period = vis.build_price_index(data_cleaned)
     output_path = vis.plot_price_index(index_series, base_period)
