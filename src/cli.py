@@ -5,22 +5,24 @@ import logging
 logger = logging.getLogger(__name__)
 
 def setup_logger(verbose: bool = False) -> None:
-    log_level = logging.INFO if verbose else logging.WARNING
     logging.basicConfig(
-        level=log_level,
+        level=logging.INFO,
         format="%(asctime)s [%(levelname)s] %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S"
     )
 
+    log_level = logging.DEBUG if verbose else logging.INFO
+    logger.setLevel(log_level)
+
 def print_separator() -> None:
-    print("-" * 100)
+    logger.debug("-" * 100)
 
 def print_title(title: str) -> None:
-    logger.info(f'\033[1m {title:=^50} \033[0m')
+    logger.debug(f'\033[1m {title:=^50} \033[0m')
 
 def show_data_structure(data: pd.DataFrame | pd.Series, n_rows:int = 5) -> None:
     print_separator()
-    print(f'data shape: {data.shape}')
+    logger.debug(f'data shape: {data.shape}')
     data.info()
     print_separator()
     print(data.sample(min(n_rows, len(data))))
@@ -31,11 +33,11 @@ def show_unique_values(data: pd.DataFrame, columns: list[str] | None = None) -> 
    
     for column in columns:
         print_separator()
-        logger.info(f'======== Describing {column} ========')
+        logger.debug(f'======== Describing {column} ========')
         print(data[column].value_counts())
 
 def describe_numerical_columns(data: pd.DataFrame) -> None:
-    logger.info('======== Numeric columns resume ========')
+    logger.debug('======== Numeric columns resume ========')
     print(data[NUMERIC_COLUMNS].describe().round(2))
     print_separator()
 
@@ -43,7 +45,7 @@ def describe_categorical_columns(data: pd.DataFrame) -> None:
     print_title(' DESCRIBING CATEGORICAL COLUMNS ')
     show_unique_values(data, CATEGORICAL_COLUMNS)
     print_separator()
-    logger.info('======== Categorical columns resume ========')
+    logger.debug('======== Categorical columns resume ========')
     print(data[CATEGORICAL_COLUMNS].describe())
     print_separator()
 
