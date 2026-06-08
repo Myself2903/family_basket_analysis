@@ -1,10 +1,9 @@
-import argparse
+import logging
 import pandas as pd
 from pathlib import Path
 from functools import wraps
 from time import perf_counter
 from typing import Callable, ParamSpec, TypeVar
-from .cli import logger
 
 P = ParamSpec('P')
 R = TypeVar('R')
@@ -18,6 +17,7 @@ def timer(fn: Callable[P, R]) -> Callable[P, R]:
         finally:
             end_time = perf_counter()
 
+            logger = logging.getLogger(__name__)
             logger.info(f'Execution time: {end_time-start_time:.2f}')
 
     return wrapper
