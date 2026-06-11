@@ -31,7 +31,12 @@ def show_data_structure(data: pd.DataFrame | pd.Series, n_rows:int = 5) -> None:
     logger.debug(buffer.getvalue())
 
     print_separator()
-    logger.debug(f'\n{data.sample(min(n_rows, len(data)))}')
+    existing_rows = len(data)
+
+    if n_rows > existing_rows:
+        logger.warning(f'trying to print {n_rows} rows when only {existing_rows} exist. {existing_rows} will be printed instead.')
+
+    logger.debug(f'\n{data.sample(min(n_rows, existing_rows))}') 
     print_separator()
 
 def show_unique_values(data: pd.DataFrame, columns: list[str] | None = None) -> None:
