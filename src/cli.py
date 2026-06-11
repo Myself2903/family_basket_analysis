@@ -45,7 +45,11 @@ def show_unique_values(data: pd.DataFrame, columns: list[str] | None = None) -> 
     for column in columns:
         print_separator()
         logger.debug(f'======== Describing {column} ========')
-        logger.debug(f'\n{data[column].value_counts()}')
+
+        try:
+            logger.debug(f'\n{data[column].value_counts()}')
+        except KeyError:
+            logger.warning(f'Column {column} not in DataFrame')
 
 def describe_numerical_columns(data: pd.DataFrame) -> None:
     logger.debug('======== Numeric columns resume ========')
