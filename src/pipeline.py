@@ -42,11 +42,10 @@ def transform_str_date_to_date(data:pd.DataFrame) -> pd.DataFrame:
 
 def remove_city_from_market(data: pd.DataFrame) -> pd.DataFrame:
     df = data.copy()
-    df['Mercados'] = (
-        df['Mercados']
-        .str.split(',').str[1]
-        .str.strip()
-    )
+
+    # if entry does not include ',' it is replaced with NaN so we use an auxiliar variable
+    extracted_market = df['Mercados'].str.split(',').str[1]
+    df['Mercados'] = extracted_market.fillna(df['Mercados']).str.strip().astype(str)
 
     return df
 
