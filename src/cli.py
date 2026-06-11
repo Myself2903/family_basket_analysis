@@ -66,11 +66,15 @@ def describe_categorical_columns(data: pd.DataFrame) -> None:
 
 def describe_added_columns(data: pd.DataFrame) -> None:
     print_title(' ADDED COLUMNS ')
-    show_data_structure(data[[
-        'price_variation_range',
-        'price_variation_percentage',
-        'anio',
-        'mes',
-        'anio_mes'
-    ]])
+    try:
+        show_data_structure(data[[
+            'price_variation_range',
+            'price_variation_percentage',
+            'anio',
+            'mes',
+            'anio_mes'
+        ]])
+
+    except KeyError as e:
+        logger.warning(f'Unexpected column encountered. {e.args}')
     
