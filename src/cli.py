@@ -31,7 +31,12 @@ def show_data_structure(data: pd.DataFrame | pd.Series, n_rows:int = 5) -> None:
     logger.debug(buffer.getvalue())
 
     print_separator()
-    logger.debug(f'\n{data.sample(min(n_rows, len(data)))}')
+    existing_rows = len(data)
+
+    if n_rows > existing_rows:
+        logger.warning(f'trying to print {n_rows} rows when only {existing_rows} exist. {existing_rows} will be printed instead.')
+
+    logger.debug(f'\n{data.sample(min(n_rows, existing_rows))}') 
     print_separator()
 
 def show_unique_values(data: pd.DataFrame, columns: list[str] | None = None) -> None:
@@ -40,7 +45,11 @@ def show_unique_values(data: pd.DataFrame, columns: list[str] | None = None) -> 
     for column in columns:
         print_separator()
         logger.debug(f'======== Describing {column} ========')
-        logger.debug(f'\n{data[column].value_counts()}')
+
+        try:
+            logger.debug(f'\n{data[column].value_counts()}')
+        except KeyError:
+            logger.warning(f'Column {column} not in DataFrame')
 
 def describe_numerical_columns(data: pd.DataFrame) -> None:
     logger.debug('======== Numeric columns resume ========')
@@ -57,11 +66,15 @@ def describe_categorical_columns(data: pd.DataFrame) -> None:
 
 def describe_added_columns(data: pd.DataFrame) -> None:
     print_title(' ADDED COLUMNS ')
-    show_data_structure(data[[
-        'price_variation_range',
-        'price_variation_percentage',
-        'anio',
-        'mes',
-        'anio_mes'
-    ]])
+    try:
+        show_data_structure(data[[
+            'price_variation_range',
+            'price_variation_percentage',
+            'anio',
+            'mes',
+            'anio_mes'
+        ]])
+
+    except KeyError as e:
+        logger.warning(f'Unexpected column encountered. {e.args}')
     

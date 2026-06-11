@@ -13,29 +13,39 @@ def transform_price_to_float(data: pd.DataFrame) -> pd.DataFrame:
 
 def transform_str_date_to_date(data:pd.DataFrame) -> pd.DataFrame:
     df = data.copy()
+
+    # regex expression to delete dayweek
+    days_regex = r'(lunes|martes|miércoles|miercoles|jueves|viernes|sábado|sabado|domingo)(,\s*|\s+)'
     for column in DATE_COLUMNS:
         df[column] = (
             df[column]
-            .str.split(',').str[1] # deletes week day
             .str.strip()
             .str.lower()
+            .str.replace(days_regex, '', regex=True)
             .str.replace('de', '') # deletes 'de' statements
             .apply( # maps months names to number format
-                lambda x: '-'.join([ str(MONTHS_MAPPING.get(date_info, date_info) ) for date_info in x.split('  ') ]) 
+                lambda x: '-'.join([ str(MONTHS_MAPPING.get(date_info, date_info) ) for date_info in x.split() ]) 
             )
         )
 
-        df[column] = pd.to_datetime(df[column], format='%d-%m-%Y')
+        try:
+            df[column] = pd.to_datetime(df[column], format='%d-%m-%Y')
+        except ValueError as e:
+
+            for i, value in df[column].items():
+                try:
+                    pd.to_datetime(value, format='%d-%m-%Y')
+                except ValueError:
+                    raise ValueError(f"Entry {i} with value '{data[column].iloc[i]}' in column {column} has an unknown format dd-mm-yyyy or day-month-year expected")
    
     return df
 
 def remove_city_from_market(data: pd.DataFrame) -> pd.DataFrame:
     df = data.copy()
-    df['Mercados'] = (
-        df['Mercados']
-        .str.split(',').str[1]
-        .str.strip()
-    )
+
+    # if entry does not include ',' it is replaced with NaN so we use an auxiliar variable
+    extracted_market = df['Mercados'].str.split(',').str[1]
+    df['Mercados'] = extracted_market.fillna(df['Mercados']).str.strip().astype(str)
 
     return df
 
