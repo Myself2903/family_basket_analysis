@@ -2,6 +2,10 @@
 
 This is a project that analyzes the prices of family basket products in four cities from the Eje Cafetero (Colombia) during the period 2022 - 2025 using Python. The dataset can be found [here](https://www.datos.gov.co/Agricultura-y-Desarrollo-Rural/Historico-de-Precios-Productos-de-la-Canasta-Famil/gdqq-rry2/about_data).
 
+## 🎥 Presentation Video
+
+Watch the project presentation here: [Presentation Video](https://universidadmag-my.sharepoint.com/:v:/g/personal/yirleidismarquezac_unimagdalena_edu_co/IQDtLAQsI03yTpEiXNFtj995ASehMLOpv5CvUrZ1ZQemAuI?e=M52PkY)
+
 ## Usage
 You can run the project via pip or uv.
 
